@@ -2,7 +2,6 @@
 #By SimonTheCoder
 #@category Functions
 
-from os import close
 import ghidra.program.util.CyclomaticComplexity as CyclomaticComplexity
 cyclomaticComplexity = CyclomaticComplexity()
 
@@ -17,14 +16,16 @@ else:
     output_file.createNewFile()
 ofd = open(str(output_file),"w")
 
-print "Start resolving..."
+print "Start resolving...\n"
 fcount = 0
 for f in currentProgram.getFunctionManager().getFunctions(True):
     if monitor.isCancelled() :
         break
     ofd.write("\"%s\",%d\n" % (f.getName(),cyclomaticComplexity.calculateCyclomaticComplexity(f, monitor)))
-    fcount = 1
-    print "Computing %d" % (fcount)
-print "OK"
+    fcount = fcount + 1
+    print ".",
+print "\nOK"
 #close(ofd)
 ofd.close()
+
+popup("All done.\n Function processed:%d" % (fcount))
