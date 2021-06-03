@@ -18,12 +18,16 @@ ofd = open(str(output_file),"w")
 
 print "Start resolving...\n"
 fcount = 0
+all_count = currentProgram.getFunctionManager().getFunctionCount()
+
+monitor.initialize(all_count)
 for f in currentProgram.getFunctionManager().getFunctions(True):
     if monitor.isCancelled() :
         break
     ofd.write("\"%s\",%d\n" % (f.getName(),cyclomaticComplexity.calculateCyclomaticComplexity(f, monitor)))
     fcount = fcount + 1
-    print ".",
+    monitor.incrementProgress(1) # update the progress
+    monitor.setMessage("Working on " + str(fcount)) # update the status message
 print "\nOK"
 #close(ofd)
 ofd.close()
