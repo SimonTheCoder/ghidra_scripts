@@ -24,7 +24,7 @@ def getELFHeader():
         print "No correct ELF found @ImageBase. Try to get ELF from original file."
         try:
             fd = open( str(getProgramFile()),"rb")
-            bap = ByteArrayProvider(fd.read(0x100000)) #I think 1M is enough for ELF Header.
+            bap = ByteArrayProvider(fd.read(0x1000)) #I think 1 page is enough for ELF Header.
             fd.close()
             header = ElfHeader.createElfHeader(RethrowContinuesFactory.INSTANCE, bap)
         except IOError as error:
