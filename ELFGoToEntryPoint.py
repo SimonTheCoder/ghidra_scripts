@@ -1,6 +1,7 @@
 #Goto entry point of current ELF.
 #By SimonTheCoder
-#@category ELF
+#@category SimonTheCoder
+#@menupath Navigation.Go To Entry Point
 
 import ELFHeaderRebuilder
 

@@ -1,6 +1,6 @@
 #Rebuild ELFHeader obj from memory of currentProgram.
 #By SimonTheCoder
-#@category ELF
+#@category SimonTheCoder
 
 import ghidra.app.util.bin.MemoryByteProvider as MemoryByteProvider
 from ghidra.app.util.bin.format.elf import ElfHeader

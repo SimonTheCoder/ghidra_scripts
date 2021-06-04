@@ -1,6 +1,6 @@
 #Script to compute the cyclomatic complexity of all functions. And output as CSV format to given file.
 #By SimonTheCoder
-#@category Functions
+#@category SimonTheCoder
 
 import ghidra.program.util.CyclomaticComplexity as CyclomaticComplexity
 cyclomaticComplexity = CyclomaticComplexity()

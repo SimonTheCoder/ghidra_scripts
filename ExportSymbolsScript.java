@@ -1,7 +1,7 @@
 
 //Exports Symbols to a bash script which calls objcopy with --add-symbol to add symbol to a given elf binary. 
-//@category Symbol
-//@menupath Tool.SimonScripts.ExportSymbols
+//@category SimonTheCoder
+//@menupath Tools.SimonScripts.ExportSymbols
 
 import java.io.File;
 
