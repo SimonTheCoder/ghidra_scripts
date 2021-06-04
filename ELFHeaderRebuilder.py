@@ -9,7 +9,7 @@ import generic.continues.RethrowContinuesFactory as RethrowContinuesFactory
 from __main__ import *
 
 def getELFHeader():
-    if currentProgram.getExecutableFormat().find("ELF1") <0:
+    if currentProgram.getExecutableFormat().find("ELF") <0:
         print "for ELF only!"
         return None
     mp = MemoryByteProvider(currentProgram.getMemory(), currentProgram.getMinAddress())
