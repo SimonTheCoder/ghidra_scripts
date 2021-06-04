@@ -30,6 +30,9 @@ def getELFHeader():
         except IOError as error:
             print "Original file not found!. ELFHeader create failed."    
             header = None
+        except ElfException as error:
+            print "Can not find ELF in original file."
+            header = None    
     if header is None:
         print "Let's find it manually..."
         return  getELFHeaderManually()       
