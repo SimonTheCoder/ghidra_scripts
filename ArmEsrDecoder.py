@@ -102,6 +102,40 @@ DFSC_dict[	0b110001	]="	Unsupported atomic hardware update fault.	"    #	When FE
 DFSC_dict[	0b110100	]="	IMPLEMENTATION DEFINED fault (Lockdown).	"    #	    
 DFSC_dict[	0b110101	]="	IMPLEMENTATION DEFINED fault (Unsupported Exclusive or Atomic access).	"    #	    
 
+IFSC_dict = dict()
+IFSC_dict[	0b000000	]="	Address size fault, level 0 of translation or translation table base register.	"    #	    
+IFSC_dict[	0b000001	]="	Address size fault, level 1.	"    #	    
+IFSC_dict[	0b000010	]="	Address size fault, level 2.	"    #	    
+IFSC_dict[	0b000011	]="	Address size fault, level 3.	"    #	    
+IFSC_dict[	0b000100	]="	Translation fault, level 0.	"    #	    
+IFSC_dict[	0b000101	]="	Translation fault, level 1.	"    #	    
+IFSC_dict[	0b000110	]="	Translation fault, level 2.	"    #	    
+IFSC_dict[	0b000111	]="	Translation fault, level 3.	"    #	    
+IFSC_dict[	0b001001	]="	Access flag fault, level 1.	"    #	    
+IFSC_dict[	0b001010	]="	Access flag fault, level 2.	"    #	    
+IFSC_dict[	0b001011	]="	Access flag fault, level 3.	"    #	    
+IFSC_dict[	0b001000	]="	Access flag fault, level 0.	"    #	When FEAT_LPA2 is implemented
+IFSC_dict[	0b001100	]="	Permission fault, level 0.	"    #	When FEAT_LPA2 is implemented
+IFSC_dict[	0b001101	]="	Permission fault, level 1.	"    #	    
+IFSC_dict[	0b001110	]="	Permission fault, level 2.	"    #	    
+IFSC_dict[	0b001111	]="	Permission fault, level 3.	"    #	    
+IFSC_dict[	0b010000	]="	Synchronous External abort, not on translation table walk or hardware update of translation table.	"    #	    
+IFSC_dict[	0b010011	]="	Synchronous External abort on translation table walk or hardware update of translation table, level -1.	"    #	When FEAT_LPA2 is implemented
+IFSC_dict[	0b010100	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 0.	"    #	    
+IFSC_dict[	0b010101	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 1.	"    #	    
+IFSC_dict[	0b010110	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 2.	"    #	    
+IFSC_dict[	0b010111	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 3.	"    #	    
+IFSC_dict[	0b011000	]="	Synchronous parity or ECC error on memory access, not on translation table walk.	"    #	When FEAT_RAS is not implemented
+IFSC_dict[	0b011011	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level -1.	"    #	When FEAT_LPA2 is implemented and FEAT_RAS is not implemented
+IFSC_dict[	0b011100	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 0.	"    #	When FEAT_RAS is not implemented
+IFSC_dict[	0b011101	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 1.	"    #	When FEAT_RAS is not implemented
+IFSC_dict[	0b011110	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 2.	"    #	When FEAT_RAS is not implemented
+IFSC_dict[	0b011111	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 3.	"    #	When FEAT_RAS is not implemented
+IFSC_dict[	0b101001	]="	Address size fault, level -1.	"    #	When FEAT_LPA2 is implemented
+IFSC_dict[	0b101011	]="	Translation fault, level -1.	"    #	When FEAT_LPA2 is implemented
+IFSC_dict[	0b110000	]="	TLB conflict abort.	"    #	    
+IFSC_dict[	0b110001	]="	Unsupported atomic hardware update fault.	"    #	When FEAT_HAFDBS is implemented
+
 
 ISS_dict = dict()
 
@@ -140,6 +174,21 @@ class Data_abort_dict(dict):
         result = result + "DFSC: %s    >>> %s\n" % (bin(DFSC), DFSC_dict[DFSC])
         return result
 
+class Inst_abort_dict(dict):
+    def __getitem__(self, k):
+        result = ""
+
+        FnV = pick_value(k,10,10)
+        result = result + "FnV: %s    >>> %s\n" % (bin(FnV), ["FAR is valid.","FAR is not valid, and holds an UNKNOWN value."][FnV])
+
+        EA = pick_value(k,9,9)
+        if EA != 0:
+            result = result + "EA(External abort type): %s (%s)   \n" % (bin(EA),hex(EA))
+
+        IFSC = pick_value(k,5,0)
+        result = result + "IFSC: %s    >>> %s\n" % (bin(IFSC), IFSC_dict[IFSC])
+        return result
+
 #ISS encoding for exceptions with an unknown reason
 ISS_dict[0b000000] = Unknown_dict()
 
@@ -158,13 +207,11 @@ ISS_dict[	0b010101	]=Todo_dict()
 ISS_dict[	0b011000	]=Todo_dict()
 ISS_dict[	0b011001	]=Todo_dict()
 ISS_dict[	0b011100	]=Todo_dict()
-ISS_dict[	0b100000	]=Todo_dict()
-ISS_dict[	0b100001	]=Todo_dict()
+ISS_dict[	0b100000	]=Inst_abort_dict()
+ISS_dict[	0b100001	]=Inst_abort_dict()
 ISS_dict[	0b100010	]=Todo_dict()
 ISS_dict[	0b100100	]=Data_abort_dict()
 ISS_dict[	0b100101	]=Data_abort_dict()
-# ISS_dict[	0b100100	]=Todo_dict()
-# ISS_dict[	0b100101	]=Todo_dict()
 ISS_dict[	0b100110	]=Todo_dict()
 ISS_dict[	0b101000	]=Todo_dict()
 ISS_dict[	0b101100	]=Todo_dict()
@@ -198,7 +245,11 @@ else:
 if ESR_value is None or ESR_value == 0:
     if DEBUG:
         #for debug only
+        #data abort
         ESR_value = 0x96000061
+
+        #inst abort
+        #ESR_value = 0x86000010
     else:
         #bad value 
         popup("Please input a valid ESR value!")
