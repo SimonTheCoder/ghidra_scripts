@@ -253,7 +253,10 @@ if ESR_value is None or ESR_value == 0:
         #ESR_value = 0x86000010
     else:
         #bad value 
-        popup("Please input a valid ESR value!")
+        if 'popup' in vars():
+            popup("Please input a valid ESR value!")
+        else:
+            print("Please input a valid ESR value!")  
         exit(1)
 #[63:37] bit RES0 in ARM v8
 ESR_value = ESR_value & ((1<<37) - 1)
