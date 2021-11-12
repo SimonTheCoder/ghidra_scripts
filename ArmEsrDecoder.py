@@ -233,8 +233,9 @@ def pick_value(value,high,low):
         low = high
     return (value & int('1'*(high-low+1),2)<<low) >> low
 ESR_value = 0
-if 'askInt' in vars():
-    ESR_value = askInt("Input ESR value","ESR value(hex need '0x' prefix):")
+if 'askLong' in vars():
+    ESR_value = askLong("Input ESR value","ESR value(hex need '0x' prefix):")
+    print(hex(ESR_value))
 else:
     import sys
     if len(sys.argv) != 2:
