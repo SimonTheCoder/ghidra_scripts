@@ -173,8 +173,16 @@ def pick_value(value,high,low):
         high = low
         low = high
     return (value & int('1'*(high-low+1),2)<<low) >> low
+ESR_value = 0
+if 'askInt' in vars():
+    ESR_value = askInt("Input ESR value","ESR value(hex need '0x' prefix):")
+else:
+    import sys
+    if len(sys.argv) != 2:
+        print("usage:\npython3 %s 0x????????" % sys.argv[0])
+        exit(1)
+    ESR_value = int(sys.argv[1] , 16)
 
-ESR_value = askInt("Input ESR value","ESR value(hex need '0x' prefix):")
 if ESR_value is None or ESR_value == 0:
     if DEBUG:
         #for debug only
@@ -208,4 +216,7 @@ result = result + "\n-------------------------------\n"
 #result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS,"Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-")
 result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS, ISS_dict[EC][ISS])
 
-popup(result)
+if 'popup' in vars():
+    popup(result)
+else:
+    print(result) 
