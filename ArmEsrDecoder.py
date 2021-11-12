@@ -107,7 +107,7 @@ ISS_dict = dict()
 
 class Todo_dict(dict):
     def __getitem__(self, k):
-        return "Still in DEV..."
+        return "Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-"
 
 class Unknown_dict(dict):
     def __getitem__(self, k):
