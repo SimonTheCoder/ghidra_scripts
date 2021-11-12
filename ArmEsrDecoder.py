@@ -107,7 +107,17 @@ ISS_dict = dict()
 
 class Todo_dict(dict):
     def __getitem__(self, k):
-        return "Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-"
+        bin_str = bin(k)[2:]
+        bin_str = '0'*(37 -len(bin_str)) + bin_str
+        result = ""
+        capt = ""
+        for i in range(36,-1,-1):
+            capt = capt + "%02d  " % i
+        tabl = ""
+        for i in bin_str:
+            tabl = tabl + " %s  " % i
+           
+        return capt+"\n"+tabl+"\nPlease ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-"
 
 class Unknown_dict(dict):
     def __getitem__(self, k):
@@ -153,6 +163,8 @@ ISS_dict[	0b100001	]=Todo_dict()
 ISS_dict[	0b100010	]=Todo_dict()
 ISS_dict[	0b100100	]=Data_abort_dict()
 ISS_dict[	0b100101	]=Data_abort_dict()
+# ISS_dict[	0b100100	]=Todo_dict()
+# ISS_dict[	0b100101	]=Todo_dict()
 ISS_dict[	0b100110	]=Todo_dict()
 ISS_dict[	0b101000	]=Todo_dict()
 ISS_dict[	0b101100	]=Todo_dict()
@@ -214,7 +226,7 @@ result = result + "\n-------------------------------\n"
 result = result + "IL: 0x%x\nMeaning:\n%s\n\n" % (IL,IL_dict[IL])
 result = result + "\n-------------------------------\n"
 #result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS,"Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-")
-result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS, ISS_dict[EC][ISS])
+result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS, ISS_dict[EC][ESR_value])
 
 if 'popup' in vars():
     popup(result)
