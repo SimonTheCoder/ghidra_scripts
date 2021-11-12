@@ -64,6 +64,45 @@ IL_dict[0b1] = """32-bit instruction trapped. This value is also used when the e
 
     An exception reported using EC value 0b000000. """
 
+DFSC_dict = dict()
+DFSC_dict[	0b000000	]="	Address size fault, level 0 of translation or translation table base register.	"    #	    
+DFSC_dict[	0b000001	]="	Address size fault, level 1.	"    #	    
+DFSC_dict[	0b000010	]="	Address size fault, level 2.	"    #	    
+DFSC_dict[	0b000011	]="	Address size fault, level 3.	"    #	    
+DFSC_dict[	0b000100	]="	Translation fault, level 0.	"    #	    
+DFSC_dict[	0b000101	]="	Translation fault, level 1.	"    #	    
+DFSC_dict[	0b000110	]="	Translation fault, level 2.	"    #	    
+DFSC_dict[	0b000111	]="	Translation fault, level 3.	"    #	    
+DFSC_dict[	0b001001	]="	Access flag fault, level 1.	"    #	    
+DFSC_dict[	0b001010	]="	Access flag fault, level 2.	"    #	    
+DFSC_dict[	0b001011	]="	Access flag fault, level 3.	"    #	    
+DFSC_dict[	0b001000	]="	Access flag fault, level 0.	"    #	When FEAT_LPA2 is implemented
+DFSC_dict[	0b001100	]="	Permission fault, level 0.	"    #	When FEAT_LPA2 is implemented
+DFSC_dict[	0b001101	]="	Permission fault, level 1.	"    #	    
+DFSC_dict[	0b001110	]="	Permission fault, level 2.	"    #	    
+DFSC_dict[	0b001111	]="	Permission fault, level 3.	"    #	    
+DFSC_dict[	0b010000	]="	Synchronous External abort, not on translation table walk or hardware update of translation table.	"    #	    
+DFSC_dict[	0b010001	]="	Synchronous Tag Check Fault.	"    #	When FEAT_MTE2 is implemented
+DFSC_dict[	0b010011	]="	Synchronous External abort on translation table walk or hardware update of translation table, level -1.	"    #	When FEAT_LPA2 is implemented
+DFSC_dict[	0b010100	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 0.	"    #	    
+DFSC_dict[	0b010101	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 1.	"    #	    
+DFSC_dict[	0b010110	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 2.	"    #	    
+DFSC_dict[	0b010111	]="	Synchronous External abort on translation table walk or hardware update of translation table, level 3.	"    #	    
+DFSC_dict[	0b011000	]="	Synchronous parity or ECC error on memory access, not on translation table walk.	"    #	When FEAT_RAS is not implemented
+DFSC_dict[	0b011011	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level -1.	"    #	When FEAT_LPA2 is implemented and FEAT_RAS is not implemented
+DFSC_dict[	0b011100	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 0.	"    #	When FEAT_RAS is not implemented
+DFSC_dict[	0b011101	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 1.	"    #	When FEAT_RAS is not implemented
+DFSC_dict[	0b011110	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 2.	"    #	When FEAT_RAS is not implemented
+DFSC_dict[	0b011111	]="	Synchronous parity or ECC error on memory access on translation table walk or hardware update of translation table, level 3.	"    #	When FEAT_RAS is not implemented
+DFSC_dict[	0b100001	]="	Alignment fault.	"    #	    
+DFSC_dict[	0b101001	]="	Address size fault, level -1.	"    #	When FEAT_LPA2 is implemented
+DFSC_dict[	0b101011	]="	Translation fault, level -1.	"    #	When FEAT_LPA2 is implemented
+DFSC_dict[	0b110000	]="	TLB conflict abort.	"    #	    
+DFSC_dict[	0b110001	]="	Unsupported atomic hardware update fault.	"    #	When FEAT_HAFDBS is implemented
+DFSC_dict[	0b110100	]="	IMPLEMENTATION DEFINED fault (Lockdown).	"    #	    
+DFSC_dict[	0b110101	]="	IMPLEMENTATION DEFINED fault (Unsupported Exclusive or Atomic access).	"    #	    
+
+
 ISS_dict = dict()
 
 class Todo_dict(dict):
@@ -74,6 +113,22 @@ class Unknown_dict(dict):
     def __getitem__(self, k):
         return "Reason Unknown."
 
+class Data_abort_dict(dict):
+    def __getitem__(self, k):
+        result = "Data abort ISS:\n\n"
+        
+        ISV = pick_value(k,24,24)
+        result = result + "ISV: %d    >>> %s\n" % (ISV, ["No valid instruction syndrome. ISS[23:14] are RES0.","ISS[23:14] hold a valid instruction syndrome."][ISV]) 
+
+        CM = pick_value(k,8,8)
+        result = result + "CM: %d    >>> %s\n" % (CM, ["Nothing to do with cache.","Caused by cache maintenance."][CM])
+
+        WnR = pick_value(k,6,6)
+        result = result + "WnR: %d    >>> %s\n" % (WnR, ["Caused by reading.","Caused by writing."][WnR])
+
+        DFSC = pick_value(k,5,0)
+        result = result + "DFSC: %d    >>> %s\n" % (DFSC, DFSC_dict[DFSC])
+        return result
 
 #ISS encoding for exceptions with an unknown reason
 ISS_dict[0b000000] = Unknown_dict()
@@ -96,8 +151,8 @@ ISS_dict[	0b011100	]=Todo_dict()
 ISS_dict[	0b100000	]=Todo_dict()
 ISS_dict[	0b100001	]=Todo_dict()
 ISS_dict[	0b100010	]=Todo_dict()
-ISS_dict[	0b100100	]=Todo_dict()
-ISS_dict[	0b100101	]=Todo_dict()
+ISS_dict[	0b100100	]=Data_abort_dict()
+ISS_dict[	0b100101	]=Data_abort_dict()
 ISS_dict[	0b100110	]=Todo_dict()
 ISS_dict[	0b101000	]=Todo_dict()
 ISS_dict[	0b101100	]=Todo_dict()
@@ -150,6 +205,7 @@ result = result + "EC: 0x%x\nMeaning:\n%s\n\n" % (EC,EC_dict[EC])
 result = result + "\n-------------------------------\n"
 result = result + "IL: 0x%x\nMeaning:\n%s\n\n" % (IL,IL_dict[IL])
 result = result + "\n-------------------------------\n"
-result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS,"Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-")
+#result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS,"Please ref: https://developer.arm.com/documentation/ddi0595/2020-12/AArch64-Registers/ESR-EL1--Exception-Syndrome-Register--EL1-")
+result = result + "ISS: 0x%x\nMeaning:\n%s\n\n" % (ISS, ISS_dict[EC][ISS])
 
 popup(result)
