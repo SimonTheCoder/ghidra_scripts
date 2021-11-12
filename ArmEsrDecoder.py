@@ -118,16 +118,16 @@ class Data_abort_dict(dict):
         result = "Data abort ISS:\n\n"
         
         ISV = pick_value(k,24,24)
-        result = result + "ISV: %d    >>> %s\n" % (ISV, ["No valid instruction syndrome. ISS[23:14] are RES0.","ISS[23:14] hold a valid instruction syndrome."][ISV]) 
+        result = result + "ISV: %s    >>> %s\n" % (bin(ISV), ["No valid instruction syndrome. ISS[23:14] are RES0.","ISS[23:14] hold a valid instruction syndrome."][ISV]) 
 
         CM = pick_value(k,8,8)
-        result = result + "CM: %d    >>> %s\n" % (CM, ["Nothing to do with cache.","Caused by cache maintenance."][CM])
+        result = result + "CM: %s    >>> %s\n" % (bin(CM), ["Nothing to do with cache.","Caused by cache maintenance."][CM])
 
         WnR = pick_value(k,6,6)
-        result = result + "WnR: %d    >>> %s\n" % (WnR, ["Caused by reading.","Caused by writing."][WnR])
+        result = result + "WnR: %s    >>> %s\n" % (bin(WnR), ["Caused by reading.","Caused by writing."][WnR])
 
         DFSC = pick_value(k,5,0)
-        result = result + "DFSC: %d    >>> %s\n" % (DFSC, DFSC_dict[DFSC])
+        result = result + "DFSC: %s    >>> %s\n" % (bin(DFSC), DFSC_dict[DFSC])
         return result
 
 #ISS encoding for exceptions with an unknown reason
