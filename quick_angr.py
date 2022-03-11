@@ -32,7 +32,7 @@ cmd_string_blank_state = """s = prj.factory.blank_state(addr=%s)"""
 print("###########Create angr blank state##########")
 print(cmd_string_blank_state % (hex(currentAddress.offset).replace("L","")))
 
-cmd_string_sigmgr = """simgr = p.factory.simulation_manager(s)
+cmd_string_sigmgr = """simgr = prj.factory.simulation_manager(s)
 simgr.use_technique(angr.exploration_techniques.Explorer(find=%s, avoid=%s))
 simgr.run()"""
 print("###########Create angr sim manager##########")
