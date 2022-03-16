@@ -11,6 +11,8 @@ if "currentProgram" in vars():
     import json
     import os
 
+    import ghidra.program.model.address.AddressSet as AddressSet
+
 
     find_config = dict()
 
@@ -54,7 +56,13 @@ if "currentProgram" in vars():
     call_angr = os.popen("python3 %s %s" % (script_path, fn))
     print(call_angr.read())
     print("===================================")
-
+    with open(fn,"r") as fno:
+        config = json.load(fno)
+    
+    addressSet = AddressSet()
+    for addr in config["def_infos"]:
+        addressSet.add(toAddr(addr))
+    createHighlight(addressSet)
 
 else:
     #we are in normal python context
@@ -102,6 +110,7 @@ else:
                                           )
 
     reg_vex_offset, reg_vex_size = prj.arch.registers[config["register"].lower()]
+    print("Finding reg: %s  index: %d  size: %d" % (config["register"].lower(), reg_vex_offset, reg_vex_size))
 
     obv_res = rd.observed_results[observation_point]
 
@@ -110,11 +119,16 @@ else:
     print(reg_def.values)
     #print(reg_def.one_value())
 
+    def_infos = []
     for i in reg_def.values:
         print("Value:",reg_def.values[i])
         for bv in reg_def.values[i]:
             for def_info in list(obv_res.extract_defs(bv)):
                 print(def_info)
+                def_infos.append(def_info.codeloc.ins_addr)
     # def_info = list(obv_res.extract_defs(reg_def.one_value()))[0]
     # print(def_info)
+    config["def_infos"]=def_infos
+    with open(sys.argv[1],"w") as f:     
+        json.dump(config, f)
 
