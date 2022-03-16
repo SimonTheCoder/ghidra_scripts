@@ -105,12 +105,16 @@ else:
 
     obv_res = rd.observed_results[observation_point]
 
-    reg_def = obv_res.register_definitions.load(reg_vex_offset,reg_vex_size)
+    #reg_def = obv_res.register_definitions.load(reg_vex_offset,reg_vex_size)
+    reg_def = obv_res.register_definitions.load(reg_vex_offset, reg_vex_size)
     print(reg_def.values)
-    print(reg_def.one_value())
+    #print(reg_def.one_value())
 
-    #we only find first one at now. 
-    #TODO: support multi-defs
-    def_info = list(obv_res.extract_defs(reg_def.one_value()))[0]
-    print(def_info)
+    for i in reg_def.values:
+        print("Value:",reg_def.values[i])
+        for bv in reg_def.values[i]:
+            for def_info in list(obv_res.extract_defs(bv)):
+                print(def_info)
+    # def_info = list(obv_res.extract_defs(reg_def.one_value()))[0]
+    # print(def_info)
 
