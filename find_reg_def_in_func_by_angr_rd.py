@@ -1,7 +1,7 @@
 #Find register defination in current function.
 #By SimonTheCoder
 #@category SimonTheCoder
-
+#@menupath Search.Find reg definition
 
 
 #we are in ghidra script context
@@ -22,10 +22,14 @@ if "currentProgram" in vars():
         if currentProgram.getLanguage().getLanguageDescription().getSize() == 64:
             target_arch = "x86_64"
     
+    #TODO: add ARM thumb support
+
     find_config["arch"] = target_arch
 
     #get selected function position
-    func =getFunctionContaining(currentAddress) 
+    #because a complex binary can cause CFG generating takeing lot of time, 
+    # we only load the current function info angr.
+    func = getFunctionContaining(currentAddress) 
     find_config["load_address"] = func.getBody().getMinAddress().offset
     find_config["function_body"] =  binascii.b2a_hex(
         getBytes(
@@ -114,10 +118,8 @@ else:
 
     obv_res = rd.observed_results[observation_point]
 
-    #reg_def = obv_res.register_definitions.load(reg_vex_offset,reg_vex_size)
     reg_def = obv_res.register_definitions.load(reg_vex_offset, reg_vex_size)
     print(reg_def.values)
-    #print(reg_def.one_value())
 
     def_infos = []
     for i in reg_def.values:
