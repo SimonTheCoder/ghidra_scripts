@@ -22,6 +22,9 @@ if format_re is not None:
     cmd_string = cmd_string_with_format % target_path
 else:
     target_arch = currentProgram.getLanguage().getProcessor()
+    if target_arch == "x86":
+        if currentProgram.getLanguage().getLanguageDescription().getSize() == 64:
+            target_arch = "x86_64"
     target_base_addr = hex(currentProgram.minAddress.offset).replace("L","")
     cmd_string = cmd_string_rawbin % (target_path, target_arch, target_base_addr)
 
@@ -44,3 +47,4 @@ for reg in prj.arch.default_symbolic_registers:
 """
 print("###########print angr state regs##########")
 print(cmd_string_print_regs)
+
