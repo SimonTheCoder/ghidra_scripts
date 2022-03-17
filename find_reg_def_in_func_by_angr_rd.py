@@ -106,7 +106,7 @@ else:
 
     target_func = bin_cfg.functions.get_by_addr(config["load_address"])
 
-    observation_point = ("insn", config["observation_point"], 0)
+    observation_point = ("insn", config["observation_point"], 0) #0: OP_BEFORE
 
     rd = prj.analyses.ReachingDefinitions(subject=target_func, 
                                           func_graph=target_func.graph,
