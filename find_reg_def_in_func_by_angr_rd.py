@@ -101,6 +101,8 @@ else:
                                force_complete_scan=False, 
                                normalize=True, 
                                symbols=True)
+    # bin_cfg = prj.analyses.CFGEmulated(resolve_indirect_jumps=True,
+    #                                  normalize=True)                           
 
     target_func = bin_cfg.functions.get_by_addr(config["load_address"])
 
@@ -125,6 +127,7 @@ else:
     for i in reg_def.values:
         print("Value:",reg_def.values[i])
         for bv in reg_def.values[i]:
+            print("BV:",bv)
             for def_info in list(obv_res.extract_defs(bv)):
                 print(def_info)
                 def_infos.append(def_info.codeloc.ins_addr)
