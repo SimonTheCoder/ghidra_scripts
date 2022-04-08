@@ -41,7 +41,8 @@ if "currentProgram" in vars():
     #get observe address
     find_config["observation_point"] = currentAddress.offset
 
-    atom_string = askString("Register,MEM","Wich register or MEM to find(MEM format:MEM,addr,size):")
+    #atom_string = askString("Register,MEM","Wich register or MEM to find(MEM format:MEM,addr,size):")
+    atom_string = askString("Register","Wich register:")
 
     if atom_string.startswith("MEM"):
         register = atom_string
@@ -51,7 +52,8 @@ if "currentProgram" in vars():
             register = register.getName()
 
     if register is None:
-        print("Bad register or MEM format!!!")
+        #print("Bad register or MEM format!!!")
+        print("Bad register !!!")
         exit(1)
 
     find_config["register"] = register
@@ -99,8 +101,10 @@ else:
 
     import angr
     import angr.analyses.reaching_definitions.dep_graph as dep_graph
+    # import angr.analyses.reaching_definitions.rd_state as rd_state
     from angr.knowledge_plugins.key_definitions.atoms import Register, Tmp, MemoryLocation
     import binascii
+    import claripy
 
     #create angr project obj
     binary = binascii.a2b_hex(config["function_body"])
@@ -120,13 +124,20 @@ else:
 
     target_func = bin_cfg.functions.get_by_addr(config["load_address"])
 
+    # init_state = rd_state.ReachingDefinitionsState(arch=prj.arch, subject = target_func)
+    # bv_sp_init = claripy.BVS("SP_init_base",prj.arch.bits)
+    # stack_pointer_name = prj.arch.register_names[prj.arch.sp_offset]
+    #setattr(init_state.regs,stack_pointer_name,bv_sp_init)
+    # bv_sp_init = init_state.get_sp()
+
     observation_point = ("insn", config["observation_point"], 0) #0: OP_BEFORE
 
     rd = prj.analyses.ReachingDefinitions(subject=target_func, 
                                           func_graph=target_func.graph,
                                           cc = target_func.calling_convention,
                                           observation_points= [observation_point],
-                                          dep_graph = dep_graph.DepGraph()
+                                          dep_graph = dep_graph.DepGraph(),
+                                          #init_state = init_state
                                           )
 
     target_atom = None
@@ -143,7 +154,7 @@ else:
         else:
             mem_size = int(mem_size)
 
-        target_atom = MemoryLocation(target_mem_addr,mem_size)
+        target_atom = MemoryLocation(bv_sp_init+target_mem_addr,mem_size)
 
     else:
         reg_vex_offset, reg_vex_size = prj.arch.registers[config["register"].lower()]
