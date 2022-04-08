@@ -3,7 +3,7 @@
 #@category SimonTheCoder
 #@menupath Search.Find reg definition
 
-
+DEBUG = False
 #we are in ghidra script context
 if "currentProgram" in vars():
     import binascii
@@ -57,14 +57,22 @@ if "currentProgram" in vars():
     script_path = getSourceFile().getAbsolutePath()
 
     print("call angr:")
-    call_angr = os.popen("python3 %s %s" % (script_path, fn))
-    print(call_angr.read())
+
+    if DEBUG:
+        import utils
+        utils.open_in_ipython(script_path, fn)
+    else:
+        call_angr = os.popen("python3 %s %s" % (script_path, fn))
+        print(call_angr.read())
     print("===================================")
     with open(fn,"r") as fno:
         config = json.load(fno)
     
     addressSet = AddressSet()
     for addr in config["def_infos"]:
+        print(addr)
+        if addr == None:
+            continue
         addressSet.add(toAddr(addr))
     createHighlight(addressSet)
 
@@ -87,7 +95,6 @@ else:
 
     import binascii
 
-    
     #create angr project obj
     binary = binascii.a2b_hex(config["function_body"])
     prj = angr.project.load_shellcode(
@@ -122,8 +129,15 @@ else:
 
     reg_def = obv_res.register_definitions.load(reg_vex_offset, reg_vex_size)
     print(reg_def.values)
-
+    def_info_list = []
     def_infos = []
+
+    def get_predecessors_rc(di):
+        for i in rd.dep_graph.predecessors(di):
+            print("r ",i)
+            def_infos.append(i.codeloc.ins_addr)
+            get_predecessors_rc(i)
+
     for i in reg_def.values:
         print("Value:",reg_def.values[i])
         for bv in reg_def.values[i]:
@@ -131,9 +145,14 @@ else:
             for def_info in list(obv_res.extract_defs(bv)):
                 print(def_info)
                 def_infos.append(def_info.codeloc.ins_addr)
+                def_info_list.append(def_info)
+                get_predecessors_rc(def_info)
+
     # def_info = list(obv_res.extract_defs(reg_def.one_value()))[0]
     # print(def_info)
     config["def_infos"]=def_infos
     with open(sys.argv[1],"w") as f:     
         json.dump(config, f)
+
+    print("Close this window to return to Ghidra.")
 
