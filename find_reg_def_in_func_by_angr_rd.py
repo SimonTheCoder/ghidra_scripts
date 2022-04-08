@@ -3,7 +3,7 @@
 #@category SimonTheCoder
 #@menupath Search.Find reg definition
 
-DEBUG = False
+DEBUG = True
 #we are in ghidra script context
 if "currentProgram" in vars():
     import binascii
@@ -41,13 +41,20 @@ if "currentProgram" in vars():
     #get observe address
     find_config["observation_point"] = currentAddress.offset
 
-    register = currentProgram.getRegister(askString("Register","Wich register to find:"))
+    atom_string = askString("Register,MEM","Wich register or MEM to find(MEM format:MEM,addr,size):")
+
+    if atom_string.startswith("MEM"):
+        register = atom_string
+    else:
+        register = currentProgram.getRegister(atom_string)
+        if register is not None:
+            register = register.getName()
 
     if register is None:
-        print("Bad register!!!")
+        print("Bad register or MEM format!!!")
         exit(1)
 
-    find_config["register"] = register.getName()
+    find_config["register"] = register
 
     fn = tempfile.mktemp(suffix=".json",prefix="find_def.")
     print("gen config file: %s" % (fn))
@@ -92,7 +99,7 @@ else:
 
     import angr
     import angr.analyses.reaching_definitions.dep_graph as dep_graph
-
+    from angr.knowledge_plugins.key_definitions.atoms import Register, Tmp, MemoryLocation
     import binascii
 
     #create angr project obj
@@ -122,13 +129,52 @@ else:
                                           dep_graph = dep_graph.DepGraph()
                                           )
 
-    reg_vex_offset, reg_vex_size = prj.arch.registers[config["register"].lower()]
-    print("Finding reg: %s  index: %d  size: %d" % (config["register"].lower(), reg_vex_offset, reg_vex_size))
+    target_atom = None
+    reg_name = config["register"]
+    if reg_name.startswith("MEM"):
+        print("Target MEM is:",reg_name)
+        mem_magic,target_mem_addr,mem_size = reg_name.split(",")
+        if target_mem_addr.startswith("0x"):
+            target_mem_addr = int(target_mem_addr,16)
+        else:
+            target_mem_addr = int(target_mem_addr)
+        if mem_size.startswith("0x"):
+            mem_size = int(mem_size,16)
+        else:
+            mem_size = int(mem_size)
+
+        target_atom = MemoryLocation(target_mem_addr,mem_size)
+
+    else:
+        reg_vex_offset, reg_vex_size = prj.arch.registers[config["register"].lower()]
+        print("Finding reg: %s  index: %d  size: %d" % (config["register"].lower(), reg_vex_offset, reg_vex_size))
+        target_atom = Register(reg_vex_offset, reg_vex_size)
 
     obv_res = rd.observed_results[observation_point]
 
-    reg_def = obv_res.register_definitions.load(reg_vex_offset, reg_vex_size)
-    print(reg_def.values)
+    # reg_def = obv_res.register_definitions.load(reg_vex_offset, reg_vex_size)
+    # print(reg_def.values)
+    # def_info_list = []
+    # def_infos = []
+
+    # def get_predecessors_rc(di):
+    #     for i in rd.dep_graph.predecessors(di):
+    #         print("r ",i)
+    #         def_infos.append(i.codeloc.ins_addr)
+    #         get_predecessors_rc(i)
+
+    # for i in reg_def.values:
+    #     print("Value:",reg_def.values[i])
+    #     for bv in reg_def.values[i]:
+    #         print("BV:",bv)
+    #         for def_info in list(obv_res.extract_defs(bv)):
+    #             print(def_info)
+    #             def_infos.append(def_info.codeloc.ins_addr)
+    #             def_info_list.append(def_info)
+    #             get_predecessors_rc(def_info)
+
+
+    defs_iter = obv_res.get_definitions(target_atom)
     def_info_list = []
     def_infos = []
 
@@ -138,15 +184,12 @@ else:
             def_infos.append(i.codeloc.ins_addr)
             get_predecessors_rc(i)
 
-    for i in reg_def.values:
-        print("Value:",reg_def.values[i])
-        for bv in reg_def.values[i]:
-            print("BV:",bv)
-            for def_info in list(obv_res.extract_defs(bv)):
-                print(def_info)
-                def_infos.append(def_info.codeloc.ins_addr)
-                def_info_list.append(def_info)
-                get_predecessors_rc(def_info)
+    for i in defs_iter:
+        print("def:",i)
+        print("data:",obv_res.get_value_from_atom(target_atom).values)
+        def_infos.append(i.codeloc.ins_addr)
+        def_info_list.append(i)
+        get_predecessors_rc(i)
 
     # def_info = list(obv_res.extract_defs(reg_def.one_value()))[0]
     # print(def_info)
