@@ -136,6 +136,7 @@ else:
                                           func_graph=target_func.graph,
                                           cc = target_func.calling_convention,
                                           observation_points= [observation_point],
+                                          observe_all = True,
                                           dep_graph = dep_graph.DepGraph(),
                                           #init_state = init_state
                                           )
@@ -192,6 +193,9 @@ else:
     def get_predecessors_rc(di):
         for i in rd.dep_graph.predecessors(di):
             print("r ",i)
+            if i.codeloc.ins_addr is not None:
+                liveDefs = rd.get_reaching_definitions_by_insn(i.codeloc.ins_addr, 1) # OP_AFTER
+                print("data:",liveDefs.get_value_from_atom(i.atom).values)
             def_infos.append(i.codeloc.ins_addr)
             get_predecessors_rc(i)
 
