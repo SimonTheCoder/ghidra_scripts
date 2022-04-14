@@ -203,7 +203,7 @@ else:
             if i.codeloc.ins_addr is not None:
                 liveDefs = rd.get_reaching_definitions_by_insn(i.codeloc.ins_addr, 1) # OP_AFTER
                 print("data:",liveDefs.get_value_from_atom(i.atom).values)
-            def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+liveDefs.get_value_from_atom(i.atom).values.__repr__()])
+                def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+liveDefs.get_value_from_atom(i.atom).values.__repr__()])
             get_predecessors_rc(i)
             #import ipdb;ipdb.set_trace()
     def make_def_human_readale(project):
