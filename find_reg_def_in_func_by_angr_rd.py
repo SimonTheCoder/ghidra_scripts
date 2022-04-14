@@ -78,11 +78,12 @@ if "currentProgram" in vars():
         config = json.load(fno)
     
     addressSet = AddressSet()
-    for addr in config["def_infos"]:
-        print(addr)
+    for [addr,value] in config["def_infos"]:
+        print(addr,value)
         if addr == None:
             continue
         addressSet.add(toAddr(addr))
+        setEOLComment(toAddr(addr), value)
     createHighlight(addressSet)
 
 else:
@@ -190,19 +191,69 @@ else:
     def_info_list = []
     def_infos = []
 
+    def_printed = set()
     def get_predecessors_rc(di):
         for i in rd.dep_graph.predecessors(di):
+            if i in def_printed:
+                print("cycle found!  def:",i)
+                continue
+            else:
+                def_printed.add(i)
             print("r ",i)
             if i.codeloc.ins_addr is not None:
                 liveDefs = rd.get_reaching_definitions_by_insn(i.codeloc.ins_addr, 1) # OP_AFTER
                 print("data:",liveDefs.get_value_from_atom(i.atom).values)
-            def_infos.append(i.codeloc.ins_addr)
+            def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+liveDefs.get_value_from_atom(i.atom).values.__repr__()])
             get_predecessors_rc(i)
+            #import ipdb;ipdb.set_trace()
+    def make_def_human_readale(project):
+        #pring def pretty
+        #angr.knowledge_plugins.key_definitions.atoms.Register
+        def Register__repr__(self):
+            return "<Reg %s<%d>>" % (project.arch.register_names[self.reg_offset], self.size)
+        angr.knowledge_plugins.key_definitions.atoms.Register.__repr__ = Register__repr__
 
+        def CodeLocation__repr__(self):
+            if self.block_addr is None:
+                return '<%s>' % self.sim_procedure
+
+            if self.stmt_idx is None:
+                s = "<%s%#x(-)" % (
+                    ("%#x " % self.ins_addr) if self.ins_addr else "",
+                    self.block_addr,
+                )
+            else:
+                s = "<%s%#x[%d]" % (
+                    ("%#x id=" % self.ins_addr) if self.ins_addr else "",
+                    self.block_addr,
+                    self.stmt_idx,
+                )
+
+            if self.context is None:
+                s += " contextless"
+            else:
+                dl = []
+                for i in self.context:
+                    d_string = "%s(%s)" % (project.kb.functions.floor_func(i).name,hex(i))
+                    dl.append(d_string)
+                s += " context: [%s]" % (",".join(dl),)
+
+            ss = [ ]
+            if self.info:
+                for k, v in self.info.items():
+                    if v != tuple() and v is not None:
+                        ss.append("%s=%s" % (k, v))
+                if ss:
+                    s += " with %s" % ", ".join(ss)
+            s += ">"
+
+            return s
+        angr.code_location.CodeLocation.__repr__ = CodeLocation__repr__
+    make_def_human_readale(prj)
     for i in defs_iter:
         print("def:",i)
         print("data:",obv_res.get_value_from_atom(target_atom).values)
-        def_infos.append(i.codeloc.ins_addr)
+        def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+obv_res.get_value_from_atom(target_atom).values.__repr__()])
         def_info_list.append(i)
         get_predecessors_rc(i)
 
