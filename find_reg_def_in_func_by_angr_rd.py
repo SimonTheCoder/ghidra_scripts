@@ -83,6 +83,7 @@ if "currentProgram" in vars():
         if addr == None:
             continue
         addressSet.add(toAddr(addr))
+        print("@ %x :%s" % (addr, value))
         setEOLComment(toAddr(addr), value)
     createHighlight(addressSet)
 
