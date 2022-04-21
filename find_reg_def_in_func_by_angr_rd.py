@@ -79,7 +79,7 @@ if "currentProgram" in vars():
     
     addressSet = AddressSet()
     for [addr,value] in config["def_infos"]:
-        print(addr,value)
+        #print(addr,value)
         if addr == None:
             continue
         addressSet.add(toAddr(addr))
