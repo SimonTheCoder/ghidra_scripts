@@ -22,7 +22,10 @@ if "currentProgram" in vars():
         if currentProgram.getLanguage().getLanguageDescription().getSize() == 64:
             target_arch = "x86_64"
     
-    #TODO: add ARM thumb support
+    #ARM thumb support
+    instruction = getInstructionAt(currentAddress)
+    if target_arch=="ARM" and instruction.getLength() == 2:
+        target_arch = "arm_thumb"
 
     find_config["arch"] = target_arch
 
@@ -110,10 +113,20 @@ else:
 
     #create angr project obj
     binary = binascii.a2b_hex(config["function_body"])
-    prj = angr.project.load_shellcode(
-        binary,
-        config["arch"],
-        load_address=config["load_address"])
+
+    arch = config["arch"]
+
+    if arch == "arm_thumb":
+        prj = angr.project.load_shellcode(
+            binary,
+            "ARM",
+            load_address=config["load_address"],
+            thumb=True)
+    else:                                
+        prj = angr.project.load_shellcode(
+            binary,
+            config["arch"],
+            load_address=config["load_address"])
 
     #analyses CFG
     bin_cfg = prj.analyses.CFG(resolve_indirect_jumps=True, 
@@ -124,7 +137,7 @@ else:
     # bin_cfg = prj.analyses.CFGEmulated(resolve_indirect_jumps=True,
     #                                  normalize=True)                           
 
-    target_func = bin_cfg.functions.get_by_addr(config["load_address"])
+    target_func = bin_cfg.functions.get_by_addr(config["load_address"]+ (1 if arch == "arm_thumb" else 0))
 
     # init_state = rd_state.ReachingDefinitionsState(arch=prj.arch, subject = target_func)
     # bv_sp_init = claripy.BVS("SP_init_base",prj.arch.bits)
@@ -132,7 +145,7 @@ else:
     #setattr(init_state.regs,stack_pointer_name,bv_sp_init)
     # bv_sp_init = init_state.get_sp()
 
-    observation_point = ("insn", config["observation_point"], 0) #0: OP_BEFORE
+    observation_point = ("insn", config["observation_point"] + (1 if arch == "arm_thumb" else 0), 0) #0: OP_BEFORE
 
     rd = prj.analyses.ReachingDefinitions(subject=target_func, 
                                           func_graph=target_func.graph,
