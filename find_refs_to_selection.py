@@ -13,5 +13,5 @@ for addr in currentSelection:
         refs = getReferencesTo(check_addr)
         refs_len = len(refs)
         if refs_len > 0:
-            print("References to @ %s : %d" %(check_addr, refs_len)) # "@ %s " will make the address clickable in console.
+            print("References to @ %s : %d" %(check_addr, refs_len)) # "@ %s " will make the address clickable in console(spaces are important).
             
