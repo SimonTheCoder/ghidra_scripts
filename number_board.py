@@ -1,4 +1,5 @@
 import tkinter as tk
+import struct
 
 class NumberBoard:
     def __init__(self, number = None):
@@ -33,6 +34,24 @@ class NumberBoard:
         self.tb_label = tk.Label(self.frame2, text="TB:", font=("Arial", 8))
         self.tb_label.pack()
         self.frame2.pack(side=tk.LEFT, padx=10)
+
+        self.frame3 = tk.Frame(self.root)
+
+        self.double_label = tk.Label(self.frame3, text="Double:", font=("Arial", 8))
+        self.double_label.pack()
+        self.float_label = tk.Label(self.frame3, text="Float:", font=("Arial", 8))
+        self.float_label.pack()
+        self.ulong_label = tk.Label(self.frame3, text="Unsigned Long:", font=("Arial", 8))
+        self.ulong_label.pack()
+        self.long_label = tk.Label(self.frame3, text="Long:", font=("Arial", 8))
+        self.long_label.pack()
+        self.ull_label = tk.Label(self.frame3, text="Unsigned Long Long:", font=("Arial", 8))
+        self.ull_label.pack()
+        self.ll_label = tk.Label(self.frame3, text="Long Long:", font=("Arial", 8))
+        self.ll_label.pack()
+
+        self.frame3.pack(side=tk.LEFT, padx=10)
+
 
 
 
@@ -87,7 +106,21 @@ class NumberBoard:
         self.gb_label.config(text="GB: {}".format(number/1024**3))
         self.tb_label.config(text="TB: {}".format(number/1024**4))
 
+
+
+        double_value = struct.unpack('d', struct.pack('Q', number))[0]
+        self.double_label.config(text="Double: {}".format(double_value))
+
+        float_value = struct.unpack('f', struct.pack('L', number & 0xffffffff))[0]
+        self.float_label.config(text="Float: {}".format(float_value))
         
+        self.ulong_label.config(text="Unsigned Long: {}".format(number & 0xffffffff))
+
+        self.long_label.config(text="Long: {}".format(struct.unpack('l', struct.pack('L', number & 0xffffffff))[0]))
+        
+        self.ull_label.config(text="Unsigned Long Long: {}".format(number))
+        self.ll_label.config(text="Long Long: {}".format(struct.unpack('q', struct.pack('Q', number))[0]))
+
 
     def flip_bit(self, bit_index):
         mask = 1 << bit_index
