@@ -9,7 +9,7 @@ class NumberBoard:
         self.canvas.bind("<Button-1>", lambda event: self.handle_click(event))
         self.canvas.pack()
 
-        self.frame1 = tk.Frame(self.root)
+        self.frame1 = tk.Frame(self.root, bd=5, relief="groove")
         
         self.binary_label = tk.Label(self.frame1, text="Binary:", font=("Arial", 8))
         self.binary_label.pack()
@@ -21,7 +21,7 @@ class NumberBoard:
         self.octal_label.pack()
         
         self.frame1.pack(side=tk.LEFT, padx=10)
-        self.frame2 = tk.Frame(self.root)
+        self.frame2 = tk.Frame(self.root, bd=5, relief="groove")
 
         self.size_label = tk.Label(self.frame2, text="Size:", font=("Arial", 8))
         self.size_label.pack()
@@ -35,7 +35,7 @@ class NumberBoard:
         self.tb_label.pack()
         self.frame2.pack(side=tk.LEFT, padx=10)
 
-        self.frame3 = tk.Frame(self.root)
+        self.frame3 = tk.Frame(self.root, bd=5, relief="groove")
 
         self.double_label = tk.Label(self.frame3, text="Double:", font=("Arial", 8))
         self.double_label.pack()
