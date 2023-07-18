@@ -120,13 +120,15 @@ else:
         prj = angr.project.load_shellcode(
             binary,
             "ARM",
+            start_offset=config["load_address"],
             load_address=config["load_address"],
             thumb=True)
     else:                                
         prj = angr.project.load_shellcode(
             binary,
             config["arch"],
-            load_address=config["load_address"])
+            start_offset=config["load_address"],
+            load_address=config["load_address"],thumb=False)
 
     #analyses CFG
     bin_cfg = prj.analyses.CFG(resolve_indirect_jumps=True, 
@@ -216,8 +218,10 @@ else:
             print("r ",i)
             if i.codeloc.ins_addr is not None:
                 liveDefs = rd.get_reaching_definitions_by_insn(i.codeloc.ins_addr, 1) # OP_AFTER
-                print("data:",liveDefs.get_value_from_atom(i.atom).values)
-                def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+liveDefs.get_value_from_atom(i.atom).values.__repr__()])
+                if liveDefs.get_value_from_atom(i.atom) is None:
+                    continue
+                print("data:",list(liveDefs.get_value_from_atom(i.atom).values()))
+                def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+list(liveDefs.get_value_from_atom(i.atom).values()).__repr__()])
             get_predecessors_rc(i)
             #import ipdb;ipdb.set_trace()
     def make_def_human_readale(project):
@@ -266,8 +270,8 @@ else:
     make_def_human_readale(prj)
     for i in defs_iter:
         print("def:",i)
-        print("data:",obv_res.get_value_from_atom(target_atom).values)
-        def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+obv_res.get_value_from_atom(target_atom).values.__repr__()])
+        print("data:",list(obv_res.get_value_from_atom(target_atom).values()))
+        def_infos.append([i.codeloc.ins_addr,i.atom.__repr__()+list(obv_res.get_value_from_atom(target_atom).values()).__repr__()])
         def_info_list.append(i)
         get_predecessors_rc(i)
 
